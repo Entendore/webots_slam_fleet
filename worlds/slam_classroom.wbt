@@ -1,0 +1,162 @@
+#VRML_SIM R2023b utf8
+
+WorldInfo {
+  coordinateSystem "ENU"
+  basicTimeStep 32
+  contactProperties [ ContactProperties { coulombFriction [ 1 ] bounce 0 } ]
+  info [
+    "CLASSROOM: single-robot SLAM teaching world, lessons 0-10 (key X = L10).",
+    "GPS is an intentional noise-free GROUND-TRUTH cheat, for teaching only.",
+    "The 4 colored pillars are the Lesson-10 camera landmarks (EKF targets).",
+    "Obstacle boxes are deliberately NOT red/green/blue/yellow (no false blobs)."
+  ]
+}
+
+Viewpoint { orientation 1 0 0 0.9 position 0 -6 5 }
+TexturedBackground { }
+TexturedBackgroundLight { }
+
+DEF FLOOR Solid {
+  translation 0 0 -0.05
+  children [ Shape { appearance PBRAppearance { baseColor 0.75 0.75 0.75 roughness 1 metalness 0 } geometry Box { size 10 10 0.1 } } ]
+  boundingObject Box { size 10 10 0.1 }
+}
+DEF WALL_N Solid {
+  translation 0 5.05 0.2
+  children [ Shape { appearance PBRAppearance { baseColor 0.55 0.55 0.6 roughness 0.8 metalness 0 } geometry Box { size 10.2 0.1 0.4 } } ]
+  boundingObject Box { size 10.2 0.1 0.4 }
+}
+DEF WALL_S Solid {
+  translation 0 -5.05 0.2
+  children [ Shape { appearance PBRAppearance { baseColor 0.55 0.55 0.6 roughness 0.8 metalness 0 } geometry Box { size 10.2 0.1 0.4 } } ]
+  boundingObject Box { size 10.2 0.1 0.4 }
+}
+DEF WALL_E Solid {
+  translation 5.05 0 0.2
+  children [ Shape { appearance PBRAppearance { baseColor 0.55 0.55 0.6 roughness 0.8 metalness 0 } geometry Box { size 0.1 10.2 0.4 } } ]
+  boundingObject Box { size 0.1 10.2 0.4 }
+}
+DEF WALL_W Solid {
+  translation -5.05 0 0.2
+  children [ Shape { appearance PBRAppearance { baseColor 0.55 0.55 0.6 roughness 0.8 metalness 0 } geometry Box { size 0.1 10.2 0.4 } } ]
+  boundingObject Box { size 0.1 10.2 0.4 }
+}
+
+# asymmetric layout; neutral colors so the L10 blob detector sees no fake landmarks
+DEF BOX_1 Solid {
+  translation -1.5 1.2 0.2
+  children [ Shape { appearance PBRAppearance { baseColor 0.5 0.45 0.4 roughness 0.7 metalness 0 } geometry Box { size 1.2 0.3 0.4 } } ]
+  boundingObject Box { size 1.2 0.3 0.4 }
+}
+DEF BOX_2 Solid {
+  translation 2.2 -1.8 0.2
+  children [ Shape { appearance PBRAppearance { baseColor 0.5 0.45 0.4 roughness 0.7 metalness 0 } geometry Box { size 0.3 1.8 0.4 } } ]
+  boundingObject Box { size 0.3 1.8 0.4 }
+}
+DEF BOX_3 Solid {
+  translation 1.5 2.6 0.2
+  children [ Shape { appearance PBRAppearance { baseColor 0.5 0.45 0.4 roughness 0.7 metalness 0 } geometry Box { size 1.6 0.3 0.4 } } ]
+  boundingObject Box { size 1.6 0.3 0.4 }
+}
+DEF PILLAR_1 Solid {
+  translation -2.2 -2.2 0.25
+  children [ Transform { rotation 1 0 0 1.5708
+    children [ Shape { appearance PBRAppearance { baseColor 0.6 0.6 0.65 roughness 0.6 metalness 0 } geometry Cylinder { height 0.5 radius 0.45 } } ] } ]
+  boundingObject Transform { rotation 1 0 0 1.5708 children [ Cylinder { height 0.5 radius 0.45 } ] }
+}
+
+# ------------------------------------- L10 camera landmarks (colored pillars)
+DEF LM_RED Solid {
+  translation -3.5 3.5 0.25
+  children [ Transform { rotation 1 0 0 1.5708
+    children [ Shape { appearance PBRAppearance { baseColor 0.9 0.08 0.08 roughness 0.5 metalness 0 } geometry Cylinder { height 0.5 radius 0.15 } } ] } ]
+  boundingObject Transform { rotation 1 0 0 1.5708 children [ Cylinder { height 0.5 radius 0.15 } ] }
+}
+DEF LM_GREEN Solid {
+  translation 3.5 3.5 0.25
+  children [ Transform { rotation 1 0 0 1.5708
+    children [ Shape { appearance PBRAppearance { baseColor 0.08 0.9 0.08 roughness 0.5 metalness 0 } geometry Cylinder { height 0.5 radius 0.15 } } ] } ]
+  boundingObject Transform { rotation 1 0 0 1.5708 children [ Cylinder { height 0.5 radius 0.15 } ] }
+}
+DEF LM_BLUE Solid {
+  translation 3.5 -3.5 0.25
+  children [ Transform { rotation 1 0 0 1.5708
+    children [ Shape { appearance PBRAppearance { baseColor 0.1 0.15 0.9 roughness 0.5 metalness 0 } geometry Cylinder { height 0.5 radius 0.15 } } ] } ]
+  boundingObject Transform { rotation 1 0 0 1.5708 children [ Cylinder { height 0.5 radius 0.15 } ] }
+}
+DEF LM_YELLOW Solid {
+  translation -3.5 -3.5 0.25
+  children [ Transform { rotation 1 0 0 1.5708
+    children [ Shape { appearance PBRAppearance { baseColor 1 0.95 0.05 roughness 0.5 metalness 0 } geometry Cylinder { height 0.5 radius 0.15 } } ] } ]
+  boundingObject Transform { rotation 1 0 0 1.5708 children [ Cylinder { height 0.5 radius 0.15 } ] }
+}
+
+DEF CLASS_ROBOT Robot {
+  # spawn kept clear of LM_YELLOW (-3.5,-3.5) and PILLAR_1 (-2.2,-2.2)
+  translation -3.0 -4.0 0
+  rotation 0 0 1 0
+  controller "slam_teacher"
+  controllerArgs [ "--lesson", "1" ]
+  children [
+    Transform { translation 0 0 0.05 rotation 1 0 0 1.5708
+      children [ Shape { appearance PBRAppearance { baseColor 0.1 0.55 0.55 roughness 0.4 metalness 0.1 } geometry Cylinder { height 0.08 radius 0.15 } } ] }
+    Lidar {
+      translation 0 0 0.12
+      children [ Transform { rotation 1 0 0 1.5708
+        children [ Shape { appearance PBRAppearance { baseColor 0.05 0.05 0.05 roughness 0.3 metalness 0.4 } geometry Cylinder { height 0.06 radius 0.05 } } ] } ]
+      name "lidar" horizontalResolution 360 fieldOfView 6.2832
+      numberOfLayers 1 minRange 0.05 maxRange 3.5 resolution 0.01
+    }
+    Display { translation 0 0 0.16
+      children [ Shape { appearance PBRAppearance { baseColor 1 1 1 roughness 0.5 metalness 0 } geometry Plane { size 0.18 0.18 } } ]
+      name "display" width 300 height 300
+    }
+    Camera { translation 0.1 0 0.12 rotation 0 1 0 -1.5708
+             name "camera" width 64 height 64 fieldOfView 1.2 }
+    # ----- teaching-only ground truth (noise-free on purpose) --------------
+    GPS { name "gps" type "localization" }
+    # ----------------------------------------------------------------------
+    HingeJoint {
+      jointParameters HingeJointParameters { axis 0 1 0 anchor 0 0.15 0.03 }
+      device [ RotationalMotor { name "left wheel motor" maxVelocity 10 }
+               PositionSensor { name "left wheel sensor" } ]
+      endPoint Solid {
+        translation 0 0.15 0.03
+        children [ Shape { appearance PBRAppearance { baseColor 0.08 0.08 0.08 roughness 0.9 metalness 0 } geometry Cylinder { height 0.02 radius 0.03 } } ]
+        name "left wheel"
+        boundingObject Cylinder { height 0.02 radius 0.03 }
+        physics Physics { }
+      }
+    }
+    HingeJoint {
+      jointParameters HingeJointParameters { axis 0 1 0 anchor 0 -0.15 0.03 }
+      device [ RotationalMotor { name "right wheel motor" maxVelocity 10 }
+               PositionSensor { name "right wheel sensor" } ]
+      endPoint Solid {
+        translation 0 -0.15 0.03
+        children [ Shape { appearance PBRAppearance { baseColor 0.08 0.08 0.08 roughness 0.9 metalness 0 } geometry Cylinder { height 0.02 radius 0.03 } } ]
+        name "right wheel"
+        boundingObject Cylinder { height 0.02 radius 0.03 }
+        physics Physics { }
+      }
+    }
+  ]
+  name "classroom robot"
+  boundingObject Transform { translation 0 0 0.05 rotation 1 0 0 1.5708 children [ Cylinder { height 0.08 radius 0.15 } ] }
+  physics Physics { }
+}
+
+# Kidnaps the robot: robot's K key, or a timer with --every SECONDS.
+DEF KIDNAP Supervisor {
+  translation 0 0 10
+  controller "kidnap_supervisor"
+  controllerArgs [ "--every", "0", "--random" ]
+}
+
+# One-button lecture demos; idles with suite "none" (drift/noise/damage/
+# explore/ekf/backends).
+DEF ABLATION Supervisor {
+  translation 0 0 12
+  controller "ablation_supervisor"
+  controllerArgs [ "--suite", "none" ]
+}
